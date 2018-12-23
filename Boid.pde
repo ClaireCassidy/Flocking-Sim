@@ -5,10 +5,10 @@ class Boid {
   int number;
   float maxForce;
   float maxSpeed = 5;
-  float minSpeed = 0.5;
+  //float minSpeed = 0.5;
 
   int viewRadius = 80;
-
+  
   Boid(int n) {
     int x = (int)random(0, screenWidth);
     int y = (int)random(0, screenHeight);
@@ -26,7 +26,7 @@ class Boid {
     acc = PVector.random2D();
     acc.setMag(0.01);
 
-    maxForce = 0.02;
+    maxForce = 0.1;
   }
 
   Boid(int n, int x, int y) {
@@ -71,7 +71,7 @@ class Boid {
     PVector separation = this.separate(boids);
     acc.add(alignment);
     acc.add(cohesion);
-    //acc.add(separation);
+    acc.add(separation);
   }
 
   PVector steer(PVector desiredVelocity) {
@@ -114,7 +114,7 @@ class Boid {
     for (Boid boid : boids) {
       if (boid != this && pos.dist(boid.pos) < viewRadius) {
         PVector displacementBetweenBoids = PVector.sub(pos, boid.pos);
-        displacementBetweenBoids.mult(1/pos.dist(boid.pos));
+        displacementBetweenBoids.div(pos.dist(boid.pos)*pos.dist(boid.pos));
         avgVel.add(displacementBetweenBoids);
         nearbyNeighbours++;
       }
@@ -122,13 +122,13 @@ class Boid {
     
     if (nearbyNeighbours > 0) {
       avgVel.div(nearbyNeighbours);
-      avgVel.setMag(maxSpeed);
+      avgVel.setMag(2*maxSpeed);
       avgVel.sub(vel);
       avgVel.limit(maxForce);
       return avgVel;
     }
     
-    return vel;
+    return avgVel;
   }
 
   void update() {
@@ -159,5 +159,10 @@ class Boid {
     fill(255);
     //text(""+number, pos.x, pos.y);
     ellipse(pos.x, pos.y, 2,2);
+    //pushMatrix();
+    //translate(pos.x, pos.y);
+    //rotate(vel.heading());
+    //image(boidSprite, 0, 0);
+    //popMatrix();
   }
 }
